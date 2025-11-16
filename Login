@@ -1,0 +1,224 @@
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import java.awt.*;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
+
+public class CarLoginScreen extends JFrame {
+
+    // Arka plan ve alan renklerini tanımlayalım
+    private static final Color BG_COLOR = new Color(18, 30, 49);
+    private static final Color FIELD_BG_COLOR = new Color(40, 53, 75);
+    private static final Color TEXT_COLOR = Color.WHITE;
+    private static final Color PLACEHOLDER_COLOR = Color.LIGHT_GRAY;
+    private static final Color BLUE_BUTTON_COLOR = new Color(0, 123, 255);
+    private static final Color LINK_COLOR = new Color(100, 180, 255);
+
+    public CarLoginScreen() {
+        setTitle("39 Park | Giriş Yap");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        // Burayı değiştirdik: Pencere boyutunu büyüttük
+        setSize(600, 975); // Genişlik: 600, Yükseklik: 975 (yaklaşık %50 daha büyük)
+
+        setLocationRelativeTo(null); // Pencereyi ortala
+        setResizable(false);
+
+        // Ana panel (tüm içeriği tutacak)
+        JPanel mainPanel = new JPanel();
+        mainPanel.setLayout(new GridBagLayout());
+        mainPanel.setBackground(BG_COLOR);
+        GridBagConstraints gbc = new GridBagConstraints();
+
+        gbc.insets = new Insets(15, 60, 15, 60); // Bileşenler arası boşlukları da oranlı büyüttük
+        gbc.fill = GridBagConstraints.HORIZONTAL; // Yatayda doldur
+        gbc.gridwidth = 1;
+        gbc.gridx = 0;
+
+        //  1. LOGO
+        JLabel carLabel = new JLabel();
+        try {
+            ImageIcon carIcon = new ImageIcon(new ImageIcon("src/img/39PARKLOGO.png")
+                    .getImage().getScaledInstance(375, 225, Image.SCALE_SMOOTH)); // Resim boyutunu da büyüttük
+            carLabel.setIcon(carIcon);
+        } catch (Exception e) {
+            carLabel.setText("[logo yüklenemedi]");
+            carLabel.setForeground(Color.GRAY);
+        }
+        carLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        gbc.gridy = 0;
+        gbc.insets.top = 30; // Üstten daha çok boşluk
+        mainPanel.add(carLabel, gbc);
+
+        // --- 2. login başlığı ---
+        JLabel titleLabel = new JLabel("39 PARK GİRİŞ");
+        titleLabel.setFont(new Font("SansSerif", Font.BOLD, 54)); // Font boyutunu büyüttük
+        titleLabel.setForeground(TEXT_COLOR);
+        titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        gbc.gridy = 1;
+        gbc.insets.top = 15;
+        gbc.insets.bottom = 30; // Başlık altı boşluk
+        mainPanel.add(titleLabel, gbc);
+
+        // Alanlar için standart boşluklara dön
+        gbc.insets = new Insets(12, 60, 12, 60); // Alan boşluklarını da büyüttük
+
+        // --- 3. plaka alanı ---
+        JTextField userField = new JTextField("Plaka Gir");
+        styleTextField(userField, "Username", "\uD83D\uDC64", 21); // Font boyutunu büyüttük, ikon boyutu da otomatik büyüdü
+        gbc.gridy = 2;
+        mainPanel.add(userField, gbc);
+
+        // --- 4. şifre alanı ---
+        JPasswordField passField = new JPasswordField("Şifreni Gir");
+        stylePasswordField(passField, "Password", "\uD83D\uDD12", 21); // Font boyutunu büyüttük, ikon boyutu da otomatik büyüdü
+        gbc.gridy = 3;
+        mainPanel.add(passField, gbc);
+
+        // --- 5. Seçenekler Paneli (beni hatırla - şifreni mi unuttun) ---
+        JPanel optionsPanel = new JPanel(new BorderLayout());
+        optionsPanel.setOpaque(false); // Arka planı göstermesin
+
+        JCheckBox rememberMe = new JCheckBox("Beni Hatırla");
+        rememberMe.setOpaque(false);
+        rememberMe.setForeground(PLACEHOLDER_COLOR);
+        rememberMe.setFont(new Font("SansSerif", Font.PLAIN, 18)); // Font boyutunu büyüttük
+
+        JLabel forgotPass = new JLabel("Şifreni Mi Unuttun?");
+        forgotPass.setForeground(LINK_COLOR);
+        forgotPass.setFont(new Font("SansSerif", Font.PLAIN, 18)); // Font boyutunu büyüttük
+        forgotPass.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+        optionsPanel.add(rememberMe, BorderLayout.WEST);
+        optionsPanel.add(forgotPass, BorderLayout.EAST);
+
+        gbc.gridy = 4;
+        gbc.insets.bottom = 30; // Alt boşluk
+        mainPanel.add(optionsPanel, gbc);
+
+        // --- 6. login butonu ---
+        JButton loginButton = new JButton("Giriş Yap");
+        loginButton.setFont(new Font("SansSerif", Font.BOLD, 24)); // Font boyutunu büyüttük
+        loginButton.setBackground(BLUE_BUTTON_COLOR);
+        loginButton.setForeground(TEXT_COLOR);
+        loginButton.setFocusPainted(false); // Tıklama odağını gizle
+        loginButton.setOpaque(true);
+        loginButton.setBorderPainted(false);
+        loginButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        // Butonu daha uzun yapmak için padding (iç boşluk) ekleyelim
+        loginButton.setBorder(new EmptyBorder(22, 0, 22, 0)); // Buton paddingini büyüttük
+
+        gbc.gridy = 5;
+        gbc.insets.bottom = 45; // En alt boşluk
+        mainPanel.add(loginButton, gbc);
+
+        // Ana paneli Frame'e ekle
+        add(mainPanel);
+    }
+
+    /**
+     * Metin alanlarını (JTextField) tasarıma uygun hale getiren yardımcı metod.
+     * İkon, placeholder ve odaklanma (focus) davranışı ekler.
+     */
+    private void styleTextField(JTextField field, String placeholder, String icon, int fontSize) {
+        field.setBackground(FIELD_BG_COLOR);
+        field.setForeground(PLACEHOLDER_COLOR);
+        field.setFont(new Font("SansSerif", Font.PLAIN, fontSize)); // Font boyutunu parametre olarak aldık
+
+        // Alanın içine boşluk (padding) ve ikonu eklemek için bir Border kullanıyoruz
+        field.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(FIELD_BG_COLOR, 3), // Kenarlık kalınlığını da artırdık
+                BorderFactory.createEmptyBorder(15, 50, 15, 15) // İç boşluk (padding) büyüttük
+        ));
+
+        // İkonu eklemek için bir JLabel'i alanın üstüne bindiriyoruz
+        JLabel iconLabel = new JLabel(icon);
+        iconLabel.setForeground(PLACEHOLDER_COLOR);
+        iconLabel.setFont(new Font("SansSerif", Font.PLAIN, fontSize + 6)); // İkon boyutunu da fonta göre artırdık
+        iconLabel.setBounds(15, 12, 35, 35); // İkonun pozisyonu ve boyutunu ayarladık
+        field.add(iconLabel);
+
+        // Placeholder (Yer Tutucu) Davranışı
+        field.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                if (field.getText().equals(placeholder)) {
+                    field.setText("");
+                    field.setForeground(TEXT_COLOR);
+                }
+            }
+            @Override
+            public void focusLost(FocusEvent e) {
+                if (field.getText().isEmpty()) {
+                    field.setForeground(PLACEHOLDER_COLOR);
+                    field.setText(placeholder);
+                }
+            }
+        });
+    }
+
+    /**
+     * Şifre alanlarını (JPasswordField) tasarıma uygun hale getiren yardımcı metod.
+     */
+    private void stylePasswordField(JPasswordField field, String placeholder, String icon, int fontSize) {
+        field.setBackground(FIELD_BG_COLOR);
+        field.setForeground(PLACEHOLDER_COLOR);
+        field.setFont(new Font("SansSerif", Font.PLAIN, fontSize)); // Font boyutunu parametre olarak aldık
+        field.setEchoChar((char) 0); // Başlangıçta şifre noktalarını gizle, placeholder'ı göster
+
+        // Alanın içine boşluk (padding) ve ikonu eklemek için bir Border kullanıyoruz
+        field.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(FIELD_BG_COLOR, 3), // Kenarlık kalınlığını artırdık
+                BorderFactory.createEmptyBorder(15, 50, 15, 15) // İç boşluk (padding) büyüttük
+        ));
+
+        // İkonu eklemek için bir JLabel'i alanın üstüne bindiriyoruz
+        JLabel iconLabel = new JLabel(icon);
+        iconLabel.setForeground(PLACEHOLDER_COLOR);
+        iconLabel.setFont(new Font("SansSerif", Font.PLAIN, fontSize + 6)); // İkon boyutunu da fonta göre artırdık
+        iconLabel.setBounds(15, 12, 35, 35); // İkonun pozisyonu ve boyutunu ayarladık
+        field.add(iconLabel);
+
+        // Placeholder (Yer Tutucu) Davranışı
+        field.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                String pass = new String(field.getPassword());
+                if (pass.equals(placeholder)) {
+                    field.setText("");
+                    field.setEchoChar('\u2022'); // Şifre noktalarını göster
+                    field.setForeground(TEXT_COLOR);
+                }
+            }
+            @Override
+            public void focusLost(FocusEvent e) {
+                String pass = new String(field.getPassword());
+                if (pass.isEmpty()) {
+                    field.setForeground(PLACEHOLDER_COLOR);
+                    field.setText(placeholder);
+                    field.setEchoChar((char) 0); // Placeholder'ı göster
+                }
+            }
+        });
+    }
+
+
+    public static void main(String[] args) {
+        // Daha modern bir görünüm için Nimbus Look and Feel kullanalım
+        try {
+            for (UIManager.LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
+                    UIManager.setLookAndFeel(info.getClassName());
+                    break;
+                }
+            }
+        } catch (Exception e) {
+            // Nimbus yoksa, varsayılanla devam et
+        }
+
+        // GUI'yi Event Dispatch Thread (EDT) üzerinde çalıştır
+        SwingUtilities.invokeLater(() -> {
+            new CarLoginScreen().setVisible(true);
+        });
+    }
+}
