@@ -4,7 +4,7 @@ import java.awt.*;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 
-public class CarLoginScreen extends JFrame {
+class CarLoginScreen extends JFrame {
 
     // Arka plan ve alan renklerini tanımlayalım
     private static final Color BG_COLOR = new Color(18, 30, 49);
@@ -65,13 +65,13 @@ public class CarLoginScreen extends JFrame {
 
         // --- 3. plaka alanı ---
         JTextField userField = new JTextField("Plaka Gir");
-        styleTextField(userField, "Username", "\uD83D\uDC64", 21); // Font boyutunu büyüttük, ikon boyutu da otomatik büyüdü
+        styleTextField(userField, "Plaka Gir", "\uD83D\uDC64", 21); // Font boyutunu büyüttük, ikon boyutu da otomatik büyüdü
         gbc.gridy = 2;
         mainPanel.add(userField, gbc);
 
         // --- 4. şifre alanı ---
-        JPasswordField passField = new JPasswordField("Şifreni Gir");
-        stylePasswordField(passField, "Password", "\uD83D\uDD12", 21); // Font boyutunu büyüttük, ikon boyutu da otomatik büyüdü
+        JPasswordField passField = new JPasswordField("Şifre Gir");
+        stylePasswordField(passField, "Şifre Gir", "\uD83D\uDD12", 21); // Font boyutunu büyüttük, ikon boyutu da otomatik büyüdü
         gbc.gridy = 3;
         mainPanel.add(passField, gbc);
 
