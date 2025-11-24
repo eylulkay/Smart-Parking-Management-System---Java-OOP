@@ -104,7 +104,7 @@ class CarLoginScreen extends JFrame {
         gbc.insets.bottom = 45;
         mainPanel.add(loginButton, gbc);
 
-        // Butona DB action ekle
+        // Butona DB action ekle (butona tıklandıgında yapilacak islem)
         loginButton.addActionListener(e -> {
             String plaka = userField.getText();
             String sifre = new String(passField.getPassword());
@@ -116,7 +116,7 @@ class CarLoginScreen extends JFrame {
 
             if (login(plaka, sifre)) {
                 JOptionPane.showMessageDialog(null, "Giriş başarılı! Hoş geldin: " + plaka);
-                // BURAYA YENİ SAYFAYA GEÇİŞ KODU GELEBİLİR
+                // BURAYA YENİ SAYFAYA GEÇİŞ KODU eklenicek
             } else {
                 JOptionPane.showMessageDialog(null, "Plaka veya şifre hatalı!");
             }
@@ -128,13 +128,13 @@ class CarLoginScreen extends JFrame {
     // --- MSSQL DB Bağlantısı ---
     public Connection baglan() {
         try {
-            // DİKKAT: Veritabanı adını 'AkilliOtoparkDB' yaptık.
-            // trustServerCertificate=true ekledik ki sertifika hatası almayasın.
+            // DİKKAT: Veritabanı adı 'AkilliOtoparkDB' 
+            // trustServerCertificate=true ekledik ki sertifika hatası almasın. (java der ki ben bu servera güveniyorum sertifikayı kontrol etme.)
             String url = "jdbc:sqlserver://localhost:1433;databaseName=AkilliOtoparkDB;encrypt=false;trustServerCertificate=true;";
 
-            // DİKKAT: Buraya kendi SQL Server kullanıcı adını ve şifreni yazmalısın!
+            
             String user = "sa";
-            String pass = "12345"; // Şifren 12345 değilse burayı değiştirmeyi unutma!
+            String pass = "12345sa"; 
 
             return DriverManager.getConnection(url, user, pass);
         } catch (Exception e) {
@@ -147,7 +147,7 @@ class CarLoginScreen extends JFrame {
 
     // --- Login Fonksiyonu ---
     public boolean login(String plaka, String sifre) {
-        // Veritabanında 'Araclar' diye bir tablon, içinde de 'plaka' ve 'sifre' diye sütunların olmalı
+        // Veritabanında 'Araclar' diye bir tablon, içinde de plaka ve şifre sütunları var
         String sql = "SELECT 1 FROM Araclar WHERE plaka=? AND sifre=?";
 
         try (Connection con = baglan();
