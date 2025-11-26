@@ -1,18 +1,26 @@
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.*;
 import java.sql.*;
 
-class CarLoginScreen extends JFrame {
+ class CarLoginScreen extends JFrame {
 
-    // Renk ve tasarım ayarları
+    // --- PROJEYİ BAŞLATAN MAIN METODU ---
+    public static void main(String[] args) {
+        try {
+            // İşletim sistemi görünümünü yükle (Daha net yazı tipleri için)
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (Exception e) {}
+
+        SwingUtilities.invokeLater(() -> new CarLoginScreen().setVisible(true));
+    }
+    // ------------------------------------
+
     private static final Color BG_COLOR = new Color(18, 30, 49);
     private static final Color FIELD_BG_COLOR = new Color(40, 53, 75);
     private static final Color TEXT_COLOR = Color.WHITE;
     private static final Color PLACEHOLDER_COLOR = Color.LIGHT_GRAY;
     private static final Color BLUE_BUTTON_COLOR = new Color(0, 123, 255);
-    private static final Color LINK_COLOR = new Color(100, 180, 255);
 
     private JTextField userField;
     private JPasswordField passField;
@@ -21,162 +29,110 @@ class CarLoginScreen extends JFrame {
     public CarLoginScreen() {
         setTitle("39 Park | Giriş Yap");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(600, 975);
+        setSize(500, 700);
         setLocationRelativeTo(null);
         setResizable(false);
 
-        JPanel mainPanel = new JPanel();
-        mainPanel.setLayout(new GridBagLayout());
+        JPanel mainPanel = new JPanel(new GridBagLayout());
         mainPanel.setBackground(BG_COLOR);
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(15, 60, 15, 60);
+        gbc.insets = new Insets(10, 40, 10, 40);
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.gridwidth = 1;
         gbc.gridx = 0;
 
-        // Logo
-        JLabel carLabel = new JLabel();
-        try {
-            ImageIcon carIcon = new ImageIcon(new ImageIcon("src/img/39PARKLOGO.png")
-                    .getImage().getScaledInstance(375, 225, Image.SCALE_SMOOTH));
-            carLabel.setIcon(carIcon);
-        } catch (Exception e) {
-            carLabel.setText("[logo yüklenemedi]");
-            carLabel.setForeground(Color.GRAY);
-        }
-        carLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        gbc.gridy = 0;
-        gbc.insets.top = 30;
-        mainPanel.add(carLabel, gbc);
-
-        // Başlık
+        // --- BAŞLIK ---
         JLabel titleLabel = new JLabel("39 PARK GİRİŞ");
-        titleLabel.setFont(new Font("SansSerif", Font.BOLD, 54));
+        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 36));
         titleLabel.setForeground(TEXT_COLOR);
         titleLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        gbc.gridy = 1;
-        gbc.insets.top = 15;
+        gbc.gridy = 0;
         gbc.insets.bottom = 30;
         mainPanel.add(titleLabel, gbc);
 
-        gbc.insets = new Insets(12, 60, 12, 60);
-
-        // Plaka alanı
+        // --- INPUTLAR ---
         userField = new JTextField("Plaka Gir");
-        styleTextField(userField, "Plaka Gir", "\uD83D\uDC64", 21);
-        gbc.gridy = 2;
+        styleTextField(userField, "Plaka Gir");
+        gbc.gridy = 1;
         mainPanel.add(userField, gbc);
 
-        // Şifre alanı
         passField = new JPasswordField("Şifre Gir");
-        stylePasswordField(passField, "Şifre Gir", "\uD83D\uDD12", 21);
-        gbc.gridy = 3;
+        stylePasswordField(passField, "Şifre Gir");
+        gbc.gridy = 2;
         mainPanel.add(passField, gbc);
 
-        // Seçenekler
-        JPanel optionsPanel = new JPanel(new BorderLayout());
-        optionsPanel.setOpaque(false);
-        JCheckBox rememberMe = new JCheckBox("Beni Hatırla");
-        rememberMe.setOpaque(false);
-        rememberMe.setForeground(PLACEHOLDER_COLOR);
-        rememberMe.setFont(new Font("SansSerif", Font.PLAIN, 18));
-        JLabel forgotPass = new JLabel("Şifreni Mi Unuttun?");
-        forgotPass.setForeground(LINK_COLOR);
-        forgotPass.setFont(new Font("SansSerif", Font.PLAIN, 18));
-        forgotPass.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        optionsPanel.add(rememberMe, BorderLayout.WEST);
-        optionsPanel.add(forgotPass, BorderLayout.EAST);
-        gbc.gridy = 4;
-        gbc.insets.bottom = 30;
-        mainPanel.add(optionsPanel, gbc);
-
-        // Login butonu
+        // --- BUTON ---
         loginButton = new JButton("Giriş Yap");
-        loginButton.setFont(new Font("SansSerif", Font.BOLD, 24));
+        loginButton.setFont(new Font("Segoe UI", Font.BOLD, 18));
         loginButton.setBackground(BLUE_BUTTON_COLOR);
         loginButton.setForeground(TEXT_COLOR);
         loginButton.setFocusPainted(false);
-        loginButton.setOpaque(true);
         loginButton.setBorderPainted(false);
         loginButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        loginButton.setBorder(new EmptyBorder(22, 0, 22, 0));
-        gbc.gridy = 5;
-        gbc.insets.bottom = 45;
+        loginButton.setPreferredSize(new Dimension(100, 50));
+        gbc.gridy = 3;
+        gbc.insets.top = 20;
         mainPanel.add(loginButton, gbc);
 
-        // Butona DB action ekle (butona tıklandıgında yapilacak islem)
+        // *** BUTON AKSİYONU ***
         loginButton.addActionListener(e -> {
             String plaka = userField.getText();
             String sifre = new String(passField.getPassword());
 
             if (plaka.equals("Plaka Gir") || sifre.equals("Şifre Gir")) {
-                JOptionPane.showMessageDialog(null, "Lütfen plaka ve şifre girin!");
+                JOptionPane.showMessageDialog(this, "Lütfen bilgileri girin!");
                 return;
             }
 
             if (login(plaka, sifre)) {
-                JOptionPane.showMessageDialog(null, "Giriş başarılı! Hoş geldin: " + plaka);
-                // BURAYA YENİ SAYFAYA GEÇİŞ KODU eklenicek
+                JOptionPane.showMessageDialog(this, "Giriş Başarılı! Hoş geldin: " + plaka);
+                this.dispose();
+                new ParkUI(plaka).setVisible(true); // ParkUI ekranını aç
             } else {
-                JOptionPane.showMessageDialog(null, "Plaka veya şifre hatalı!");
+                JOptionPane.showMessageDialog(this, "Hatalı Plaka veya Şifre!", "Hata", JOptionPane.ERROR_MESSAGE);
             }
         });
 
         add(mainPanel);
     }
 
-    // --- MSSQL DB Bağlantısı ---
+    // DB Bağlantısı
     public Connection baglan() {
         try {
-            // DİKKAT: Veritabanı adı 'AkilliOtoparkDB' 
-            // trustServerCertificate=true ekledik ki sertifika hatası almasın. (java der ki ben bu servera güveniyorum sertifikayı kontrol etme.)
             String url = "jdbc:sqlserver://localhost:1433;databaseName=AkilliOtoparkDB;encrypt=false;trustServerCertificate=true;";
-
-            
             String user = "sa";
-            String pass = "12345sa"; 
-
+            String pass = "12345sa";
             return DriverManager.getConnection(url, user, pass);
         } catch (Exception e) {
-            // Hatayı konsola da yazdıralım ki ne olduğunu görelim
             e.printStackTrace();
-            JOptionPane.showMessageDialog(null, "DB bağlantı hatası: " + e.getMessage());
             return null;
         }
     }
 
-    // --- Login Fonksiyonu ---
     public boolean login(String plaka, String sifre) {
-        // Veritabanında 'Araclar' diye bir tablon, içinde de plaka ve şifre sütunları var
         String sql = "SELECT 1 FROM Araclar WHERE plaka=? AND sifre=?";
-
-        try (Connection con = baglan();
-             PreparedStatement ps = con.prepareStatement(sql)) {
-
-            if (con == null) return false; // Bağlantı kurulamadıysa false dön
-
-            ps.setString(1, plaka);
-            ps.setString(2, sifre);
-
-            ResultSet rs = ps.executeQuery();
-            return rs.next(); // Eğer kayıt varsa true döner
-
+        try (Connection con = baglan()) {
+            if (con == null) return false;
+            try (PreparedStatement ps = con.prepareStatement(sql)) {
+                ps.setString(1, plaka);
+                ps.setString(2, sifre);
+                ResultSet rs = ps.executeQuery();
+                return rs.next();
+            }
         } catch (Exception e) {
             e.printStackTrace();
-            JOptionPane.showMessageDialog(null, "Login işlem hatası: " + e.getMessage());
             return false;
         }
     }
 
-    // --- Stil metodları ---
-    private void styleTextField(JTextField field, String placeholder, String icon, int fontSize) {
+    // --- Stil Metotları ---
+    private void styleTextField(JTextField field, String placeholder) {
         field.setBackground(FIELD_BG_COLOR);
         field.setForeground(PLACEHOLDER_COLOR);
-        field.setFont(new Font("SansSerif", Font.PLAIN, fontSize));
+        field.setFont(new Font("Segoe UI", Font.PLAIN, 16));
         field.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(FIELD_BG_COLOR, 3),
-                BorderFactory.createEmptyBorder(15, 50, 15, 15)
-        ));
+                BorderFactory.createLineBorder(FIELD_BG_COLOR, 2),
+                BorderFactory.createEmptyBorder(10, 15, 10, 15)));
+
         field.addFocusListener(new FocusAdapter() {
             public void focusGained(FocusEvent e) {
                 if (field.getText().equals(placeholder)) {
@@ -193,21 +149,21 @@ class CarLoginScreen extends JFrame {
         });
     }
 
-    private void stylePasswordField(JPasswordField field, String placeholder, String icon, int fontSize) {
+    private void stylePasswordField(JPasswordField field, String placeholder) {
         field.setBackground(FIELD_BG_COLOR);
         field.setForeground(PLACEHOLDER_COLOR);
-        field.setFont(new Font("SansSerif", Font.PLAIN, fontSize));
+        field.setFont(new Font("Segoe UI", Font.PLAIN, 16));
         field.setEchoChar((char) 0);
         field.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(FIELD_BG_COLOR, 3),
-                BorderFactory.createEmptyBorder(15, 50, 15, 15)
-        ));
+                BorderFactory.createLineBorder(FIELD_BG_COLOR, 2),
+                BorderFactory.createEmptyBorder(10, 15, 10, 15)));
+
         field.addFocusListener(new FocusAdapter() {
             public void focusGained(FocusEvent e) {
                 String pass = new String(field.getPassword());
                 if (pass.equals(placeholder)) {
                     field.setText("");
-                    field.setEchoChar('\u2022');
+                    field.setEchoChar('•');
                     field.setForeground(TEXT_COLOR);
                 }
             }
@@ -220,19 +176,5 @@ class CarLoginScreen extends JFrame {
                 }
             }
         });
-    }
-
-    // --- MAIN ---
-    public static void main(String[] args) {
-        try {
-            for (UIManager.LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (Exception e) {}
-
-        SwingUtilities.invokeLater(() -> new CarLoginScreen().setVisible(true));
     }
 }
