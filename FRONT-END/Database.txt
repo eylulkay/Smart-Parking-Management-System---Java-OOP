@@ -1,0 +1,22 @@
+--1. veritabanını yaratalım
+IF NOT EXISTS(SELECT * FROM sys.databases WHERE name = 'AkilliOtoparkDB')
+BEGIN
+    CREATE DATABASE AkilliOtoparkDB
+END
+GO
+
+-- 2. İÇERİ GİR 
+USE AkilliOtoparkDB
+GO
+
+-- 3. Tabloyu Oluştur
+CREATE TABLE Araclar (
+    id INT PRIMARY KEY IDENTITY(1,1),
+    plaka NVARCHAR(50),
+    sifre NVARCHAR(50)
+);
+GO
+
+-- 4. Çalışacak verileri ekledim
+INSERT INTO Araclar (plaka, sifre) VALUES ('59 NK 39', '2811');
+INSERT INTO Araclar (plaka, sifre) VALUES ('39 KAY 039', '3939');
