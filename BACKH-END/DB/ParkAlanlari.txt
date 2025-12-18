@@ -1,0 +1,7 @@
+SELECT TOP (1000) [id]
+      ,[parkKodu]
+      ,[durum]
+      ,[plaka]
+      ,[girisZamani]
+      ,[cikisZamani]
+  FROM [AkilliOtoparkDB].[dbo].[ParkAlanlari]

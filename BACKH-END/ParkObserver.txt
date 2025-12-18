@@ -1,0 +1,3 @@
+public interface ParkObserver {
+    void onSlotStatusChanged(ParkSlot slot);
+}

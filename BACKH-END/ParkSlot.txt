@@ -1,0 +1,39 @@
+public class ParkSlot {
+
+    private final String parkKodu;
+    private final String durum;
+    private final String plaka;
+
+    // ===== CONSTRUCTOR =====
+    public ParkSlot(String parkKodu, String durum, String plaka) {
+        this.parkKodu = parkKodu;
+        this.durum = durum;
+        this.plaka = plaka;
+    }
+
+    // ===== GETTER'LAR =====
+    public String getParkKodu() {
+        return parkKodu;
+    }
+
+    public String getDurum() {
+        return durum;
+    }
+
+    public String getPlaka() {
+        return plaka;
+    }
+
+    // ===== YARDIMCI (İSTEĞE BAĞLI – HATA ENGELLEYİCİ) =====
+    public boolean isEmpty() {
+        return "EMPTY".equalsIgnoreCase(durum);
+    }
+
+    public boolean isReserved() {
+        return "RESERVED".equalsIgnoreCase(durum);
+    }
+
+    public boolean isOccupied() {
+        return "OCCUPIED".equalsIgnoreCase(durum);
+    }
+}

@@ -1,0 +1,102 @@
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * ParkDAO
+ * - DB işlemlerini yapar
+ * - Observer Pattern'da SUBJECT rolündedir
+ */
+public class ParkDAO implements ParkSubject {
+
+    // ================= OBSERVER LİSTESİ =================
+    private final List<ParkObserver> observers = new ArrayList<>();
+
+    // ================= DB BAĞLANTISI =================
+    private Connection baglan() throws SQLException {
+        return DriverManager.getConnection(
+                "jdbc:sqlserver://localhost:1433;" +
+                        "databaseName=AkilliOtoparkDB;" +
+                        "encrypt=false;" +
+                        "trustServerCertificate=true;",
+                "eylulProje",
+                "3939"
+        );
+    }
+
+    // ================= SUBJECT METOTLARI =================
+
+    @Override
+    public void addObserver(ParkObserver observer) {
+        observers.add(observer);
+    }
+
+    @Override
+    public void removeObserver(ParkObserver observer) {
+        observers.remove(observer);
+    }
+
+    @Override
+    public void notifyObservers(ParkSlot slot) {
+        for (ParkObserver observer : observers) {
+            observer.onSlotStatusChanged(slot);
+        }
+    }
+
+    // ================= PARK ALANLARINI GETİR =================
+    public List<ParkSlot> getAllSlots() {
+        List<ParkSlot> list = new ArrayList<>();
+
+        String sql = "SELECT parkKodu, durum, plaka FROM ParkAlanlari";
+
+        try (Connection con = baglan();
+             PreparedStatement ps = con.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                ParkSlot slot = new ParkSlot(
+                        rs.getString("parkKodu"),
+                        rs.getString("durum"),
+                        rs.getString("plaka")
+                );
+                list.add(slot);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return list;
+    }
+
+    // ================= PARK DURUMU GÜNCELLE =================
+    public boolean updateSlot(String parkKodu, String durum, String plaka) {
+
+        String sql = """
+            UPDATE ParkAlanlari
+            SET durum = ?, plaka = ?
+            WHERE parkKodu = ?
+        """;
+
+        try (Connection con = baglan();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setString(1, durum);
+            ps.setString(2, plaka);
+            ps.setString(3, parkKodu);
+
+            int affected = ps.executeUpdate();
+
+            if (affected > 0) {
+                // 🔔 OBSERVER'LARA HABER VER
+                notifyObservers(new ParkSlot(parkKodu, durum, plaka));
+                return true;
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return false;
+    }
+}
