@@ -1,5 +1,0 @@
-public interface ParkSubject {
-    void addObserver(ParkObserver observer);
-    void removeObserver(ParkObserver observer);
-    void notifyObservers(ParkSlot slot);
-}
