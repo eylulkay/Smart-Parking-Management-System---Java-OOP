@@ -1,0 +1,9 @@
+CREATE TABLE admin (
+    id INT IDENTITY(1,1) PRIMARY KEY,
+    username NVARCHAR(50),
+    password NVARCHAR(50)
+);
+
+INSERT INTO admin (username, password)
+VALUES ('admin', '1234');
+
