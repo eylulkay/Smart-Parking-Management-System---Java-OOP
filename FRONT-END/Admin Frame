@@ -1,0 +1,219 @@
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import javax.swing.table.DefaultTableModel;
+import java.awt.*;
+import java.sql.*;
+
+public class AdminFrame extends JFrame {
+
+    private final ParkDAO dao = new ParkDAO();
+
+    private JTable userTable;
+    private JTextField txtPlaka;
+    private JPasswordField txtSifre;
+    private JPasswordField txtSifre2;
+
+    public AdminFrame() {
+        setTitle("39 PARK | Admin Kullanıcı Ekle / Sil");
+        setSize(1080, 680);
+        setLocationRelativeTo(null);
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setLayout(new BorderLayout());
+
+        add(header(), BorderLayout.NORTH);
+        add(center(), BorderLayout.CENTER);
+    }
+
+    // ================= HEADER =================
+    private JPanel header() {
+        JPanel p = new JPanel(new BorderLayout());
+        p.setBorder(new EmptyBorder(16, 28, 16, 28));
+        p.setBackground(new Color(12, 20, 40));
+
+        JLabel title = new JLabel("Admin Kullanıcı Ekle / Sil");
+        title.setFont(new Font("Segoe UI", Font.BOLD, 26));
+        title.setForeground(Color.WHITE);
+
+        JButton back = new JButton("← Geri");
+        back.setFocusPainted(false);
+        back.addActionListener(e -> {
+            dispose();
+            new CarLoginScreen().setVisible(true);
+        });
+
+        p.add(title, BorderLayout.WEST);
+        p.add(back, BorderLayout.EAST);
+        return p;
+    }
+
+    // ================= CENTER =================
+    private JPanel center() {
+        JPanel main = new JPanel();
+        main.setLayout(new BoxLayout(main, BoxLayout.Y_AXIS));
+        main.setBackground(new Color(15, 25, 45));
+        main.setBorder(new EmptyBorder(22, 36, 22, 36));
+
+        main.add(addUserPanel());
+        main.add(Box.createVerticalStrut(20));
+        main.add(userListPanel());
+
+        return main;
+    }
+
+    // ================= ADD USER =================
+    private JPanel addUserPanel() {
+        JPanel p = new JPanel();
+        p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
+        p.setBackground(new Color(30, 40, 60));
+        p.setBorder(new EmptyBorder(20, 22, 20, 22));
+
+        JLabel lbl = new JLabel("Yeni Kullanıcı Ekle");
+        lbl.setFont(new Font("Segoe UI", Font.BOLD, 20));
+        lbl.setForeground(Color.WHITE);
+
+        // ⬇️ ARTIK DENGELİ
+        Dimension inputSize = new Dimension(500, 34);
+
+        txtPlaka = new JTextField();
+        txtSifre = new JPasswordField();
+        txtSifre2 = new JPasswordField();
+
+        styleInput(txtPlaka, inputSize);
+        styleInput(txtSifre, inputSize);
+        styleInput(txtSifre2, inputSize);
+
+        JButton btnAdd = new JButton("Ekle");
+        btnAdd.setPreferredSize(new Dimension(500, 36));
+        btnAdd.setMaximumSize(new Dimension(500, 36));
+        btnAdd.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        btnAdd.setBackground(new Color(255, 204, 0));
+        btnAdd.setFocusPainted(false);
+        btnAdd.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        btnAdd.addActionListener(e -> addUser());
+
+        p.add(lbl);
+        p.add(Box.createVerticalStrut(12));
+        p.add(label("Plaka"));
+        p.add(txtPlaka);
+        p.add(Box.createVerticalStrut(8));
+        p.add(label("Şifre"));
+        p.add(txtSifre);
+        p.add(Box.createVerticalStrut(8));
+        p.add(label("Şifre (Tekrar)"));
+        p.add(txtSifre2);
+        p.add(Box.createVerticalStrut(14));
+        p.add(btnAdd);
+
+        return p;
+    }
+
+    // ================= USER LIST =================
+    private JPanel userListPanel() {
+        JPanel p = new JPanel();
+        p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
+        p.setBackground(new Color(30, 40, 60));
+        p.setBorder(new EmptyBorder(20, 22, 20, 22));
+
+        JLabel lbl = new JLabel("Kullanıcı Listesi");
+        lbl.setFont(new Font("Segoe UI", Font.BOLD, 20));
+        lbl.setForeground(Color.WHITE);
+
+        userTable = new JTable();
+        userTable.setRowHeight(26);
+        userTable.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        userTable.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 13));
+
+        JScrollPane sp = new JScrollPane(userTable);
+        sp.setPreferredSize(new Dimension(900, 260)); // ⬅️ PLAKALAR ARTIK NET
+
+        JButton btnDelete = new JButton("Seçili Kullanıcıyı Sil");
+        btnDelete.setPreferredSize(new Dimension(500, 34));
+        btnDelete.setMaximumSize(new Dimension(500, 34));
+        btnDelete.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        btnDelete.setBackground(new Color(230, 60, 60));
+        btnDelete.setForeground(Color.WHITE);
+        btnDelete.setFocusPainted(false);
+        btnDelete.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        btnDelete.addActionListener(e -> deleteUser());
+
+        p.add(lbl);
+        p.add(Box.createVerticalStrut(10));
+        p.add(sp);
+        p.add(Box.createVerticalStrut(12));
+        p.add(btnDelete);
+
+        loadUsers();
+        return p;
+    }
+
+    // ================= METHODS =================
+    private void addUser() {
+        String plaka = txtPlaka.getText().trim();
+        String s1 = new String(txtSifre.getPassword());
+        String s2 = new String(txtSifre2.getPassword());
+
+        if (plaka.isEmpty() || s1.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Alanlar boş olamaz");
+            return;
+        }
+
+        if (!s1.equals(s2)) {
+            JOptionPane.showMessageDialog(this, "Şifreler uyuşmuyor");
+            return;
+        }
+
+        dao.addUser(plaka, s1);
+        loadUsers();
+
+        txtPlaka.setText("");
+        txtSifre.setText("");
+        txtSifre2.setText("");
+    }
+
+    private void deleteUser() {
+        int row = userTable.getSelectedRow();
+        if (row == -1) return;
+
+        String plaka = userTable.getValueAt(row, 0).toString();
+        dao.deleteUser(plaka);
+        loadUsers();
+    }
+
+    private void loadUsers() {
+        DefaultTableModel model = new DefaultTableModel(
+                new String[]{"Plaka", "Şifre"}, 0);
+
+        try (Connection c = dao.baglan();
+             PreparedStatement ps = c.prepareStatement(
+                     "SELECT plaka, sifre FROM Araclar");
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                model.addRow(new Object[]{
+                        rs.getString("plaka"),
+                        rs.getString("sifre")
+                });
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        userTable.setModel(model);
+    }
+
+    // ================= UI HELPERS =================
+    private JLabel label(String t) {
+        JLabel l = new JLabel(t);
+        l.setForeground(Color.WHITE);
+        l.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        return l;
+    }
+
+    private void styleInput(JComponent c, Dimension d) {
+        c.setMaximumSize(d);
+        c.setPreferredSize(d);
+        c.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        c.setBorder(BorderFactory.createEmptyBorder(6, 10, 6, 10));
+    }
+}
